@@ -1,0 +1,36 @@
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background-color: #1f2937;
+  color: #fff;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.sidebar nav a {
+  display: block;
+  padding: 0.75rem 1rem;
+  margin: 0.25rem 0;
+  border-radius: 0.5rem;
+  color: #d1d5db;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.sidebar nav a:hover {
+  background-color: #374151;
+  color: #fff;
+}
+
+.sidebar nav a.active {
+  background-color: #3b82f6;
+  color: #fff;
+}
