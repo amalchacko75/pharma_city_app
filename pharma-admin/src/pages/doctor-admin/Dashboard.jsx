@@ -10,7 +10,7 @@ export default function DoctorDashboard() {
       <button className="logout-btn" onClick={logout}>
         Logout
       </button>
-      <p>Manage your appointments and profile here.</p>
+      <p>Manage your appointments here.</p>
     </div>
   );
 }

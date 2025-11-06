@@ -2,6 +2,16 @@ import { NavLink } from "react-router-dom";
 import "./Sidebar.css";
 
 export default function Sidebar({ role }) {
+  // Normalize backend role to match sidebar keys
+  const normalizedRole =
+    role === "pharmacist"
+      ? "pharmacy"
+      : role === "super_admin"
+      ? "super"
+      : role === "doctor_admin"
+      ? "doctor"
+      : role;
+
   const links = {
     super: [
       { name: "Dashboard", path: "/admin/super", end: true },
@@ -12,7 +22,8 @@ export default function Sidebar({ role }) {
     pharmacy: [
       { name: "Dashboard", path: "/admin/pharmacy", end: true },
       { name: "Inventory", path: "/admin/pharmacy/inventory" },
-      { name: "Orders", path: "/admin/pharmacy/orders" },
+      { name: "Upload Bill", path: "/admin/pharmacy/uploadbill" },
+      { name: "Add Drugs", path: "/admin/pharmacy/add-drugs" },
       { name: "Chat", path: "/admin/pharmacy/chat" },
     ],
     doctor: [
@@ -25,13 +36,13 @@ export default function Sidebar({ role }) {
 
   return (
     <div className="sidebar">
-      <h2 className="sidebar-title">{role.toUpperCase()} PANEL</h2>
+      <h2 className="sidebar-title">{normalizedRole?.toUpperCase()} PANEL</h2>
       <nav>
-        {links[role]?.map((link) => (
+        {links[normalizedRole]?.map((link) => (
           <NavLink
             key={link.name}
             to={link.path}
-            end={link.end}
+            end={link.end || false} // <-- use end for exact matching
             className={({ isActive }) => (isActive ? "active" : "")}
           >
             {link.name}

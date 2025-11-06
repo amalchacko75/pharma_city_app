@@ -6,6 +6,7 @@ export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [location, setLocation] = useState({ lat: null, lng: null });
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -16,23 +17,52 @@ export default function Chat() {
     scrollToBottom();
   }, [messages, loading]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+  // ✅ Fetch user geolocation once
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocation({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+          });
+        },
+        (err) => {
+          console.warn("Geolocation not available", err);
+          setLocation({ lat: null, lng: null });
+        }
+      );
+    }
+  }, []);
 
-    const userMsg = { sender: "user", text: input };
+  // ✅ send message function (handles text or suggestion)
+  const sendMessage = async (msgText) => {
+    if (!msgText.trim()) return;
+
+    const userMsg = { sender: "user", text: msgText };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
     try {
-      const res = await api.post("/chatbot", { message: input });
+      // Always include lat/lng (even if 0)
+      const payload = {
+        message: msgText,
+        lat: location?.lat ?? null,
+        lng: location?.lng ?? null,
+      };
+
+      const res = await api.post("/chatbot/chat/", payload);
+
       const botMsg = {
         sender: "bot",
         text: res.data.response_data.response,
+        suggestions: res.data.response_data.suggestions || [],
       };
       setMessages((prev) => [...prev, botMsg]);
     } catch (err) {
-      const botMsg = { sender: "bot", text: "Something went wrong!" };
+      console.error("Chat API error:", err);
+      const botMsg = { sender: "bot", text: "Something went wrong!", suggestions: [] };
       setMessages((prev) => [...prev, botMsg]);
     } finally {
       setLoading(false);
@@ -40,7 +70,16 @@ export default function Chat() {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter") sendMessage();
+    if (e.key === "Enter") sendMessage(input);
+  };
+
+  // ✅ When suggestion is clicked
+  const handleSuggestionClick = (suggestion) => {
+    // Optionally warn user if location is not yet available
+    if (location.lat === null || location.lng === null) {
+      console.warn("Location not yet available — sending without it.");
+    }
+    sendMessage(suggestion);
   };
 
   return (
@@ -56,6 +95,21 @@ export default function Chat() {
             className={`chat-message ${msg.sender === "user" ? "user" : "bot"}`}
           >
             {msg.text}
+
+            {/* ✅ Suggestions */}
+            {msg.sender === "bot" && msg.suggestions?.length > 0 && (
+              <div className="chat-suggestions">
+                {msg.suggestions.map((sugg, i) => (
+                  <button
+                    key={i}
+                    className="suggestion-btn"
+                    onClick={() => handleSuggestionClick(sugg)}
+                  >
+                    {sugg}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ))}
 
@@ -78,7 +132,7 @@ export default function Chat() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
         />
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={() => sendMessage(input)}>Send</button>
       </div>
     </div>
   );

@@ -1,35 +1,24 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import "../auth/common.css";
+import "../auth/common.css"; // same CSS file
 
-export default function Login() {
-  const { login } = useAuth();
+export default function Signup() {
+  const { signup } = useAuth();
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [role, setrole] = useState("")
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
     try {
-      const user = await login(email, password);
-
-      // Normalize role-based redirect
-      if (user.role === "pharmacist") {
-        navigate("/admin/pharmacy");
-      } else if (user.role === "super_admin") {
-        navigate("/admin/super");
-      } else if (user.role === "doctor_admin") {
-        navigate("/admin/doctor");
-      } else {
-        navigate("/admin"); // fallback
-      }
+      await signup(name, email, role, password);
+      navigate("/login");
     } catch (err) {
-      console.error(err);
-      setError("Invalid email or password");
+      setError("Signup failed. Try again.");
     }
   };
 
@@ -38,11 +27,20 @@ export default function Login() {
       <div className="auth-card">
         <div className="logo-container">
           <img src="/logo192.png" alt="App Logo" className="auth-logo" />
-          <h2>Welcome Back</h2>
-          <p>Login to your admin account</p>
+          <h2>Create Account</h2>
+          <p>Join our admin panel</p>
         </div>
 
         <form onSubmit={handleSubmit}>
+          <label>Name</label>
+          <input
+            type="text"
+            placeholder="Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+
           <label>Email</label>
           <input
             type="email"
@@ -51,7 +49,14 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-
+          <label>Role</label>
+          <input
+            type="role"
+            placeholder="pharmacist/doctor"
+            value={role}
+            onChange={(e) => setrole(e.target.value)}
+            required
+          />
           <label>Password</label>
           <input
             type="password"
@@ -63,11 +68,11 @@ export default function Login() {
 
           {error && <p className="error">{error}</p>}
 
-          <button type="submit">Sign In</button>
+          <button type="submit">Sign Up</button>
         </form>
 
         <p className="auth-link">
-          Don’t have an account? <Link to="/admin/signup">Sign up</Link>
+          Already have an account? <Link to="admin/login">Login</Link>
         </p>
 
         <footer>© {new Date().getFullYear()} Send2 Admin Panel</footer>

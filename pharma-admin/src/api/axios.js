@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "https://api.pharmacityassist.online/api", // your backend base URL
+  baseURL: "http://0.0.0.0:8000", // your backend base URL
 });
 
 instance.interceptors.request.use((config) => {

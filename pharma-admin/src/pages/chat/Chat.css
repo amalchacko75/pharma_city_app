@@ -105,3 +105,25 @@
   border-radius: 20px;
   cursor: pointer;
 }
+
+.chat-suggestions {
+  margin-top: 5px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.suggestion-btn {
+  padding: 6px 12px;
+  background-color: #e5e5ea;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+}
+
+.suggestion-btn:hover {
+  background-color: #d4d4d8;
+}
+
